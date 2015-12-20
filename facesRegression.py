@@ -98,15 +98,15 @@ Xtest = Xtest[:, goodPix]
 U, S, Vt = np.linalg.svd(Xtrain, full_matrices=False)
 
 toKeep = S > 1
-print('Keeping {} features ({:.1f}%)'.format(np.sum(toKeep), 100*np.mean(toKeep)))
+print('Keeping {} features ({:.1f}%)'.format(np.sum(toKeep), 100 * np.mean(toKeep)))
 
-Xtrain = Xtrain.dot(Vt[toKeep, :].T) / S[toKeep].reshape(1, -1)
-Xtest = Xtest.dot(Vt[toKeep, :].T) / S[toKeep].reshape(1, -1)
+Xtrain_lodim = Xtrain.dot(Vt[toKeep, :].T) / S[toKeep].reshape(1, -1)
+Xtest_lodim = Xtest.dot(Vt[toKeep, :].T) / S[toKeep].reshape(1, -1)
 
 # Use linear regression to find 'attractive' face dimensions
 
-linearModel = tfModels.linReg(Xtrain, Ytrain,
-                              Xtest, Ytest)
+linearModel = tfModels.linReg(Xtrain_lodim, Ytrain,
+                              Xtest_lodim, Ytest)
 
 
 """
@@ -123,3 +123,15 @@ Let's make things more fun (and predictive) by getting a full convolutional netw
 #
 # Multilayer convolutional network
 #
+
+import importlib
+importlib.reload(tfModels)
+
+
+Xtrain = np.vstack(train_images)
+Ytrain = np.vstack(train_attr)
+Xtest = np.vstack(test_images)
+Ytest = np.vstack(test_attr)
+
+deepModel = tfModels.convNet(Xtrain, Ytrain,
+                             Xtest, Ytest)
